@@ -9,13 +9,44 @@ class App extends React.Component {
 
     this.state = {
       pets: [],
+      adoptedPets:[],
       filters: {
         type: 'all'
       }
     }
   }
+  //onChangeType--filters needs to update state.filters.type
+  handleChingeFilterType = (event) =>{
+    this.setState({
+      filters:{
+        ...this.state.filters,
+        type: event
+      }
+    })
+  }
+  onFindPetsClick = (event) => {
+    console.log(this.state.filters)
+  }
+  findPets = (event) => {
+    console.log(this.state.filters.type)
+    let url = '/api/pets'
+    if (this.state.filters.type !== "all"){
+      url +=`?type=${this.state.filters.type}`
+    }
+    fetch(url)
+    .then(res => res.json())
+    .then(pets => this.setState({pets}))
+
+  }
+  handleAdoptPet = (petId) => {
+    const pets = this.state.pets.map(p => {
+      return p.id === petId ? { ...p, isAdopted: true } : p;
+    });
+    this.setState({ pets: pets });
+  };
 
   render() {
+    console.log(this.state.pets)
     return (
       <div className="ui container">
         <header>
@@ -24,10 +55,10 @@ class App extends React.Component {
         <div className="ui container">
           <div className="ui grid">
             <div className="four wide column">
-              <Filters />
+              <Filters filters={this.state.filters} onChangeType={this.handleChingeFilterType} onFindPetsClick={this.findPets}/>
             </div>
             <div className="twelve wide column">
-              <PetBrowser />
+              <PetBrowser pets={this.state.pets} adoptedPets={this.state.adoptedPets} onAdoptPet={this.handleAdoptPet}/>
             </div>
           </div>
         </div>
